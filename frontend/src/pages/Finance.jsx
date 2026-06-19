@@ -15,13 +15,23 @@ const COLORS = ["#0f172a", "#10b981", "#f97316", "#3b82f6", "#8b5cf6", "#ec4899"
 
 const PlaidButton = ({ onDone }) => {
   const [token, setToken] = useState(null);
-  useEffect(() => { api.post("/finance/plaid/link-token").then((r) => setToken(r.data.link_token)).catch(() => {}); }, []);
+  const [unavailable, setUnavailable] = useState(false);
+  useEffect(() => {
+    api.post("/finance/plaid/link-token")
+      .then((r) => setToken(r.data.link_token))
+      .catch(() => setUnavailable(true));
+  }, []);
   const onSuccess = useCallback(async (public_token) => {
     toast.loading("Linking account…", { id: "plaid" });
     try { await api.post("/finance/plaid/exchange", { public_token }); toast.success("Bank connected!", { id: "plaid" }); onDone(); }
     catch { toast.error("Could not link account", { id: "plaid" }); }
   }, [onDone]);
   const { open, ready } = usePlaidLink({ token: token || "", onSuccess });
+  if (unavailable) return (
+    <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed" title="Plaid is not configured on the server">
+      <Building2 className="h-4 w-4" /> Connect bank (unavailable)
+    </span>
+  );
   return (
     <button data-testid="connect-bank-btn" onClick={() => open()} disabled={!ready || !token}
       className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50">
