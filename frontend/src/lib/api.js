@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const backendUrl = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
+const API = backendUrl ? `${backendUrl}/api` : "/api";
 export const TOKEN_KEY = "dopame_token";
 
 const api = axios.create({
@@ -25,6 +26,9 @@ export function getToken() {
 }
 
 export function formatApiError(detail) {
+  if (detail?.response) return formatApiError(detail.response.data?.detail || detail.response.data);
+  if (detail?.request) return "Could not reach the backend. Check REACT_APP_BACKEND_URL and CORS settings.";
+  if (detail?.message) return detail.message;
   if (detail == null) return "Something went wrong. Please try again.";
   if (typeof detail === "string") return detail;
   if (Array.isArray(detail))

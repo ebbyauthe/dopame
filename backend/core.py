@@ -25,6 +25,8 @@ db = client[os.environ['DB_NAME']]
 # ---------- Config ----------
 JWT_ALGO = "HS256"
 JWT_SECRET = os.environ["JWT_SECRET"]
+COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "false").lower() in ("1", "true", "yes", "on")
+COOKIE_SAMESITE = os.environ.get("COOKIE_SAMESITE", "none" if COOKIE_SECURE else "lax")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
@@ -55,7 +57,8 @@ def create_access_token(user_id: str, email: str) -> str:
 
 def set_auth_cookie(response, token: str):
     response.set_cookie(key="access_token", value=token, httponly=True,
-                        secure=False, samesite="lax", max_age=604800, path="/")
+                        secure=COOKIE_SECURE, samesite=COOKIE_SAMESITE,
+                        max_age=604800, path="/")
 
 async def get_current_user(request: Request) -> dict:
     token = request.cookies.get("access_token")

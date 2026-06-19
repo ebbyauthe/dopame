@@ -1,7 +1,7 @@
-from core import (db, hash_password, verify_password, now_iso, logger, GROQ_API_KEY)
 import os
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from core import db, hash_password, verify_password, now_iso
 
 from routes_auth import router as auth_router
 from routes_tracking import router as tracking_router
@@ -23,9 +23,15 @@ for r in (auth_router, tracking_router, finance_router, fitness_router,
           nutrition_router, comm_router, coach_router):
     app.include_router(r)
 
+def cors_origins():
+    origins = os.environ.get("FRONTEND_URLS") or os.environ.get("FRONTEND_URL", "http://localhost:3000")
+    return [origin.strip().rstrip("/") for origin in origins.split(",") if origin.strip()]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.environ.get("FRONTEND_URL", "http://localhost:3000")],
+    allow_origins=cors_origins(),
+    allow_origin_regex=os.environ.get("FRONTEND_ORIGIN_REGEX", r"https://.*\.onrender\.com"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

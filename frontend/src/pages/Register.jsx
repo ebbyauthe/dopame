@@ -26,7 +26,7 @@ export default function Register() {
       toast.success("Welcome to Dopame!");
       navigate("/app");
     } catch (err) {
-      toast.error(formatApiError(err.response?.data?.detail) || "Registration failed");
+      toast.error(formatApiError(err) || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -46,12 +46,14 @@ export default function Register() {
             Join Dopame and turn discipline into your default state.
           </p>
         </div>
-        <p className="relative text-sm text-slate-500">© 2026 Dopame</p>
+        <p className="relative text-sm text-slate-500">(c) 2026 Dopame</p>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12">
         <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           className="w-full max-w-sm"
         >
           <div className="lg:hidden mb-8"><Logo size={26} /></div>
@@ -62,38 +64,54 @@ export default function Register() {
             <div>
               <label className="text-sm font-medium text-slate-700">Name</label>
               <input
-                data-testid="register-name-input" type="text" required value={name}
-                onChange={(e) => setName(e.target.value)} placeholder="Alex"
+                data-testid="register-name-input"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Alex"
                 className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all outline-none"
               />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700">Email</label>
               <input
-                data-testid="register-email-input" type="email" required value={email}
-                onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
+                data-testid="register-email-input"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
                 className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all outline-none"
               />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700">Password</label>
               <input
-                data-testid="register-password-input" type="password" required value={password}
-                onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters"
+                data-testid="register-password-input"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
                 className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all outline-none"
               />
             </div>
             <button
-              data-testid="register-submit-button" type="submit" disabled={loading}
+              data-testid="register-submit-button"
+              type="submit"
+              disabled={loading}
               className="w-full rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-60"
             >
-              {loading ? "Creating…" : "Create account"}
+              {loading ? "Creating..." : "Create account"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500">
             Already have an account?{" "}
-            <Link to="/login" data-testid="go-login-link" className="font-medium text-slate-900 hover:underline">Sign in</Link>
+            <Link to="/login" data-testid="go-login-link" className="font-medium text-slate-900 hover:underline">
+              Sign in
+            </Link>
           </p>
         </motion.div>
       </div>
