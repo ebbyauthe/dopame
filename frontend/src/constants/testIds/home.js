@@ -1,6 +1,7 @@
-// Test IDs for the home / landing feature. Naming follows the directive
-// in ./auth.js (keys camelCase, values kebab-case `<feature>-<element>`).
-
 export const HOME = {
-	emergentLink: 'home-emergent-link',
+  signIn: 'home-sign-in',
+  getStarted: 'home-get-started',
+  heroCta: 'home-hero-cta',
+  coachQuestion: 'home-coach-question',
+  ctaGetStarted: 'home-cta-get-started',
 };
