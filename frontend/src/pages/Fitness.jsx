@@ -142,6 +142,39 @@ export default function Fitness() {
       {/* AI analysis */}
       <div className="rounded-3xl border border-slate-200/60 bg-white p-6 sm:p-8">
         <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display text-lg font-semibold text-slate-900">Recent workouts</h3>
+          <span className="text-sm text-slate-400">{workouts.length} logged</span>
+        </div>
+        {workouts.length === 0 ? <p className="text-sm text-slate-400 text-center py-6">No workouts yet. Log your first session above.</p> : (
+          <div className="space-y-3">
+            {workouts.slice(0, 8).map((wo) => (
+              <div key={wo.id} data-testid={`workout-${wo.id}`} className="group rounded-2xl border border-slate-200/60 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="h-9 w-9 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center"><Dumbbell className="h-4 w-4" /></span>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">{wo.name}</p>
+                      <p className="text-xs text-slate-400">{wo.type} · {wo.date} · {wo.duration_min ? `${wo.duration_min}min · ` : ""}vol {wo.volume?.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => delWorkout(wo.id)} className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all"><Trash2 className="h-4 w-4" /></button>
+                </div>
+                {wo.exercises?.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {wo.exercises.map((ex, i) => (
+                      <span key={i} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600">{ex.name} · {ex.sets?.length}×</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* AI analysis */}
+      <div className="rounded-3xl border border-slate-200/60 bg-white p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="font-display text-lg font-semibold text-slate-900 flex items-center gap-2"><Sparkles className="h-5 w-5 text-blue-500" /> AI workout analysis</h3>
           <button data-testid="analyze-btn" onClick={analyze} disabled={analyzing} className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-60">{analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Analyze</button>
         </div>

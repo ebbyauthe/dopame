@@ -1,39 +1,33 @@
 # Dopame — Product Requirements Document
 
 ## Original Problem Statement
-Build **Dopame**, a premium, Apple-level personal operating system for self-improvement, growth, discipline, achievement and personal development. Visual identity blends a personal OS, fitness tracker, financial dashboard, and AI coach. Modern, minimalist, smooth animations, highly responsive.
-
-## User Choices
-- All core features: habit tracking + streaks, goals & milestones, daily journal/mood log, AI coach
-- User accounts required (JWT email/password auth)
-- AI coach powered by **Groq** (model: `llama-3.3-70b-versatile`), user-provided key
-- Apple-style light & minimal aesthetic
-- Dashboard: streak count, weekly progress chart, achievement badges, today's tasks
+Dopame: an AI-powered personal operating system unifying Finance (Plaid), Fitness, Nutrition, Communication coaching, Goals, Habits, Journaling, AI Coaching, AI Insights, Gamification, and Growth Analytics into one premium, Apple-level dashboard. Per-user accounts. AI via Groq.
 
 ## Architecture
-- **Backend**: FastAPI + MongoDB (motor). JWT auth via httpOnly cookie + bearer token, bcrypt hashing. Routes under `/api`.
-- **Frontend**: React 19 + react-router v7, Tailwind, framer-motion, recharts, sonner, lucide-react. Outfit display font, glassmorphism, bento grids.
-- **AI**: Groq SDK, context-aware coach (injects user's habits/goals), chat history persisted in Mongo.
+- **Backend**: FastAPI (modular routers) + MongoDB (motor). `core.py` = shared auth (JWT Bearer + httpOnly cookie), Groq text/vision helpers, Emergent object storage, XP/level/gamification. Routers: auth, tracking (habits/goals/journal), finance (Plaid), fitness, nutrition, comm, coach (dashboard/coach/reports).
+- **Frontend**: React 19 + react-router v7, Tailwind, framer-motion, recharts, react-plaid-link, react-markdown, sonner, lucide-react. Outfit display font, glassmorphism, bento grids. Auth token in localStorage (`dopame_token`) + axios Bearer interceptor + withCredentials.
+- **Integrations**: Plaid (sandbox), Groq text `llama-3.3-70b-versatile` + vision `meta-llama/llama-4-scout-17b-16e-instruct`, Emergent object storage for photos.
 
-## User Personas
-- Self-improvers who want one focused space to build habits, track goals, journal, and get AI guidance.
-
-## Core Requirements (static)
-- Auth, Habits (+streaks +7-day history), Goals (+milestones +progress), Journal (+mood), AI Coach, Dashboard stats, Achievements, Profile.
+## Personas
+- Ambitious self-optimizers wanting finance, body, mind and habits in one intelligent dashboard.
 
 ## Implemented (2026-06-19)
-- ✅ JWT auth: register/login/logout/me/profile, demo seed (demo@dopame.app / Dopame123!)
-- ✅ Habits: create, toggle complete, streak calc, 7-day heatmap, delete
-- ✅ Goals: create with milestones, toggle milestone → progress %, categories, delete
-- ✅ Journal: mood selector (1–5), entries list, delete
-- ✅ AI Coach: Groq live chat, context-aware, suggestions, clear history
-- ✅ Dashboard: stat cards, weekly momentum area chart, goal radial, mood trend, achievements grid (8 badges)
-- ✅ Landing page, responsive AppShell with sidebar/mobile drawer
-- ✅ Verified by testing agent: backend 13/13, frontend 100% on critical flows
+- ✅ JWT auth (Bearer + cookie), demo seed (demo@dopame.app / Dopame123!), XP/levels.
+- ✅ Finance: Plaid Link (sandbox) connect/exchange/sync, accounts, transactions (Plaid + manual), categorization, net worth (assets/liabilities + bank balances), cash-flow trend, category breakdown.
+- ✅ Fitness: workouts (exercises/sets/volume), bodyweight trend, PRs, recent-workouts list, AI workout analysis (Groq), progress photos w/ Groq vision analysis + object storage.
+- ✅ Nutrition: manual food log, AI meal-photo macro analysis (Groq vision), macro rings vs goals, editable goals.
+- ✅ Communication: Duolingo-style simulator (8 modes), AI evaluation (grammar/vocab/clarity/confidence/professionalism/tone) + corrections/tips + continuation, progress scoring & streak.
+- ✅ Habits/Goals/Journal (+XP), AI Coach (data-aware Groq), Weekly/Monthly AI reports.
+- ✅ Unified Dashboard: Life Score (6-area weighted), module cards, charts, achievements (12 badges), gamification.
+- ✅ Verified: backend 27/27 pytest; testing agent confirmed real-browser login→dashboard (no bounce) + all module flows.
 
-## Backlog / Next Tasks
-- P1: Email reminders/notifications, brute-force lockout on login, streak freeze/protection
-- P1: Real-time streaming of AI coach responses (SSE)
-- P2: Habit scheduling (specific days), goal target dates surfacing, dark mode
-- P2: Onboarding flow, weekly insights summary from AI, export data
-- Polish: silence Recharts ResponsiveContainer console warnings
+## Known Limitations / Backlog
+- P1: Plaid Link iframe not browser-automation tested (sandbox login user_good/pass_good) — manual UI verify recommended; backend link-token/exchange/sync work.
+- P1: Wrap Groq calls in asyncio.to_thread (currently sync → blocks event loop under concurrency); add rate limiting on AI endpoints.
+- P1: Brute-force lockout on login; file size/type validation on photo uploads.
+- P2: Cache Plaid balances in DB (avoid accounts_get on every /summary); Mongo aggregation for dashboard at scale; daily communication challenges; notifications/reminders; recurring transaction insights.
+- Polish: silence Recharts ResponsiveContainer width/height warnings.
+
+## Next Tasks
+- Manual-verify Plaid Link sandbox connect end-to-end in browser.
+- Make AI calls non-blocking + add throttling.
