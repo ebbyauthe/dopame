@@ -1,4 +1,4 @@
-from core import (db, hash_password, verify_password, now_iso, init_storage, logger, GROQ_API_KEY)
+from core import (db, hash_password, verify_password, now_iso, logger, GROQ_API_KEY)
 import os
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -37,11 +37,6 @@ async def startup():
     await db.users.create_index("email", unique=True)
     await db.habit_logs.create_index([("habit_id", 1), ("date", 1)])
     await db.transactions.create_index("txn_id", unique=True)
-    try:
-        init_storage()
-        logger.info("Storage initialized")
-    except Exception as e:
-        logger.error(f"Storage init failed: {e}")
     admin_email = os.environ.get("ADMIN_EMAIL", "demo@dopame.app")
     admin_pw = os.environ.get("ADMIN_PASSWORD", "Dopame123!")
     existing = await db.users.find_one({"email": admin_email})

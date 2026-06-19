@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Header, Query, Response, Request
+from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Request
 from pydantic import BaseModel
 from bson import ObjectId
-import base64, json, uuid
+import base64, json
 from datetime import datetime, timezone, timedelta
 from core import (db, CurrentUser, now_iso, today_str, clean, add_xp, groq_chat,
-                  groq_vision, put_object, get_object, get_current_user, APP_NAME)
+                  groq_vision, get_current_user)
 
 router = APIRouter(prefix="/api/fitness", tags=["fitness"])
 
@@ -115,7 +115,6 @@ async def analyze(user: dict = CurrentUser):
 @router.post("/photos")
 async def upload_photo(angle: str = Query("front"), file: UploadFile = File(...), user: dict = CurrentUser):
     data = await file.read()
-    ext = (file.filename.rsplit(".", 1)[-1] if "." in (file.filename or "") else "jpg").lower()
     mime = file.content_type or "image/jpeg"
     b64 = base64.b64encode(data).decode()
     prompt = ('Analyze this fitness progress photo. Return ONLY JSON with keys: '
@@ -126,14 +125,9 @@ async def upload_photo(angle: str = Query("front"), file: UploadFile = File(...)
         raw = groq_vision(prompt, b64, mime=mime, json_mode=True, max_tokens=500)
         analysis = json.loads(raw)
     except Exception:
-        analysis = {"observations": "Photo saved. AI analysis unavailable right now.", "disclaimer": "Visual estimate only, not medical advice."}
-    path = f"{APP_NAME}/uploads/{user['id']}/{uuid.uuid4()}.{ext}"
-    try:
-        put_object(path, data, mime)
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Upload failed: {e}")
-    doc = {"user_id": user["id"], "storage_path": path, "content_type": mime, "angle": angle,
-           "analysis": analysis, "date": today_str(), "created_at": now_iso()}
+        analysis = {"observations": "AI analysis unavailable right now.", "disclaimer": "Visual estimate only, not medical advice."}
+    doc = {"user_id": user["id"], "angle": angle, "analysis": analysis,
+           "date": today_str(), "created_at": now_iso()}
     res = await db.progress_photos.insert_one(doc)
     await add_xp(user["id"], 20)
     return clean({**doc, "_id": res.inserted_id})
@@ -149,26 +143,3 @@ async def list_photos(user: dict = CurrentUser):
 async def del_photo(pid: str, user: dict = CurrentUser):
     await db.progress_photos.delete_one({"_id": ObjectId(pid), "user_id": user["id"]})
     return {"ok": True}
-
-
-# Serve files (supports cookie, ?auth= for img src)
-@router.get("/file")
-async def serve_file(request: Request, path: str = Query(...), authorization: str = Header(None), auth: str = Query(None)):
-    token = request.cookies.get("access_token")
-    if not token and authorization and authorization.startswith("Bearer "):
-        token = authorization[7:]
-    elif not token and auth:
-        token = auth
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    import jwt as _jwt
-    from core import JWT_SECRET, JWT_ALGO
-    try:
-        _jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    rec = await db.progress_photos.find_one({"storage_path": path})
-    if not rec:
-        raise HTTPException(status_code=404, detail="Not found")
-    content, ctype = get_object(path)
-    return Response(content=content, media_type=rec.get("content_type", ctype))

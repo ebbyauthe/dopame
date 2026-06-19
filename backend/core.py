@@ -113,17 +113,6 @@ def groq_vision(prompt: str, image_b64: str, mime="image/jpeg", json_mode=True, 
         logger.error(f"Groq vision error: {e}")
         raise HTTPException(status_code=502, detail="Image analysis failed. Please try again.")
 
-# ---------- Object Storage ----------
-APP_NAME = "dopame"
-
-def init_storage():
-    pass
-
-def put_object(path: str, data: bytes, content_type: str) -> dict:
-    raise HTTPException(status_code=501, detail="Photo storage is not configured.")
-
-def get_object(path: str):
-    raise HTTPException(status_code=501, detail="Photo storage is not configured.")
 
 # ---------- Gamification ----------
 async def add_xp(user_id: str, amount: int, reason: str = ""):
