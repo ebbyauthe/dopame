@@ -1,0 +1,90 @@
+{
+  "project_name": "Dopame",
+  "domain": "Personal Self-Improvement Operating System",
+  "theme": "Light",
+  "archetype": "Archetype 4 (Swiss & High-Contrast) + Glassmorphism (Apple Variant)",
+  "vibe": "Apple-level attention to detail, premium, calm, motivating, minimal visual noise.",
+  "typography": {
+    "heading_font": "Outfit",
+    "body_font": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter font-medium text-slate-900",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight font-medium text-slate-900",
+      "h3": "text-xl sm:text-2xl tracking-tight font-medium",
+      "h4": "text-lg sm:text-xl tracking-tight font-medium",
+      "body": "text-base text-slate-600 leading-relaxed",
+      "small_label": "text-xs tracking-[0.2em] uppercase font-bold text-slate-400"
+    }
+  },
+  "colors": {
+    "background": "bg-slate-50",
+    "foreground": "text-slate-900",
+    "primary_brand": "bg-slate-900 text-white",
+    "surface": {
+      "card": "bg-white",
+      "glass": "bg-white/70 backdrop-blur-xl backdrop-saturate-150"
+    },
+    "accents": {
+      "streak_active": "text-orange-500 bg-orange-50",
+      "success_green": "text-emerald-500 bg-emerald-50",
+      "ai_coach_blue": "text-blue-500 bg-blue-50"
+    },
+    "borders": "border-slate-200/60"
+  },
+  "spacing_and_layout": {
+    "padding_philosophy": "Generous spacing. p-6 or p-8 inside cards to prevent text collision.",
+    "dashboard_grid": "Bento Grid: grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6.",
+    "border_radius": "rounded-3xl for main containers, rounded-2xl for inner cards, rounded-full for buttons."
+  },
+  "surfaces_and_shadows": {
+    "card_style": "Pure white background, 1px border-slate-200/60, shadow-[0_2px_10px_rgba(0,0,0,0.02)]. No harsh shadows.",
+    "glass_header": "Sticky nav with backdrop-blur-2xl, bg-white/70, border-b border-slate-200/50.",
+    "hover_states": "Hover lift: -translate-y-1, shadow-lg, transition-all duration-300 ease-out."
+  },
+  "components": {
+    "buttons": "rounded-full px-6 py-2.5 font-medium transition-all active:scale-95",
+    "inputs": "bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all",
+    "charts": "Use Recharts or Shadcn charts. Remove grid lines for a cleaner look. Use smooth curved lines (monotone).",
+    "badges": "rounded-full px-3 py-1 text-sm font-medium bg-slate-100 text-slate-700"
+  },
+  "motion": {
+    "page_transitions": "Fade in with slight upward motion (y: 10 to y: 0) using framer-motion.",
+    "micro_interactions": "Active states scale down to 0.98. Hover states slightly lift."
+  },
+  "media": {
+    "icon_library": "lucide-react (stroke-width: 1.5 for premium feel)",
+    "image_urls": [
+      {
+        "category": "auth_background",
+        "url": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGxpZ2h0JTIwbWluaW1hbCUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzgxODM0ODY4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Clean white wavy lines for minimal login/register splash page"
+      },
+      {
+        "category": "ai_coach_avatar",
+        "url": "https://images.pexels.com/photos/29506605/pexels-photo-29506605.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Abstract pastel 3D glass sphere to represent the AI Coach persona"
+      },
+      {
+        "category": "user_avatar_placeholder",
+        "url": "https://images.pexels.com/photos/10828537/pexels-photo-10828537.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Minimalist black and white silhouette for user profiles"
+      },
+      {
+        "category": "motivation_banner",
+        "url": "https://images.pexels.com/photos/33491430/pexels-photo-33491430.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Runner silhouette moving uphill for goals/milestones dashboard widget"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Use Outfit for all Headings. Import it from Google Fonts.",
+    "Use strict Apple-like Glassmorphism: bg-white/70, backdrop-blur-xl for sticky/floating elements.",
+    "All cards must be rounded-3xl with very soft shadows (shadow-sm) and a subtle 1px border.",
+    "Strictly avoid 'Inter' for headings. Only use it or -apple-system for body copy.",
+    "Implement the 'Bento Grid' strategy for the dashboard (grid-cols-1 md:grid-cols-3 lg:grid-cols-4).",
+    "Every actionable element MUST have a hover state and an active scale-down state.",
+    "Ensure generous padding inside cards (p-6 or p-8).",
+    "All interactive and key informational elements MUST include a data-testid attribute in kebab-case (e.g., data-testid='login-submit-button').",
+    "Do not use generic blue defaults. Use a stark white/charcoal palette with functional accents for Streaks (Orange) and AI (Blue)."
+  ]
+}
