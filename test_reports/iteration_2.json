@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 2 end-to-end testing of Dopame across ALL modules (auth, finance, fitness, nutrition, communication, habits, goals, journal, AI coach, reports, dashboard, profile, logout). Backend pytest 27/27 PASS. Frontend critical priority flow verified: login -> /app dashboard with NO bounce-back to /login (race condition fix confirmed), localStorage token persisted, axios Bearer interceptor working. All 11 nav pages load without console errors. Manual transactions, AI coach Groq chat, communication AI evaluation, nutrition log, habit CRUD, logout, and protected-route redirect all working in real browser.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Fitness workout save", "issue": "After saving 'TEST UI Workout', the workout name was not found in the page body text. The POST /api/fitness/workouts API works (verified via backend pytest, volume calc correct), so this is likely a UI list-refresh issue or the workout list collapses items behind an accordion. Worth a quick UX check.", "affected_selectors": ["add-workout-btn", "save-workout-btn"]}
+    ],
+    "design_issues": [
+      {"screen": "Dashboard", "issues": ["Recharts ResponsiveContainer logs 'width(-1) height(-1) of chart should be greater than 0' warnings (carried over from iteration_1). Non-blocking but spams console; add minHeight/aspect ratio to chart containers."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/backend/tests/test_modules.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Investigate why newly-saved fitness workout name does not appear in the visible body text immediately after save (could be a missing list refresh or accordion-collapsed UI). Backend API confirmed working.",
+    "(Carried) Fix Recharts ResponsiveContainer warnings by giving chart containers explicit minHeight or aspect ratio."
+  ],
+  "critical_code_review_comments": [
+    "routes_finance.del_transaction/del_asset use ObjectId(txn_id) but list endpoint returns clean() ids (likely stringified) — delete will fail with invalid ObjectId on manual txns where txn_id field is 'manual_<oid>'. Verify the delete is matching on _id (string-or-ObjectId) consistently with what the frontend sends.",
+    "routes_finance.summary calls plaid_client.accounts_get for every Plaid item on every /summary GET — slow & rate-limited. Cache balances in DB and refresh on /sync.",
+    "routes_fitness.upload_photo + nutrition.analyze-photo do not validate file size/type — accept any UploadFile. Add size limit and image/* check to avoid abuse / large memory base64 encoding.",
+    "core groq_chat/groq_vision presumably block the event loop if using sync HTTP client inside async route — confirm it's run via asyncio.to_thread or an async client.",
+    "No rate limiting on AI endpoints (/coach/chat, /fitness/analyze, /comm/session/reply) — easy DoS / cost runaway. Add per-user throttle.",
+    "Dashboard pagination/aggregation: /api/dashboard pulls full lists (habits, workouts, txns, food_logs). Fine for small users; consider Mongo aggregation pipelines for scale.",
+    "(Carried) No brute-force lockout on /api/auth/login (auth_testing.md expects after-5-fails lockout). Currently any number of wrong password attempts allowed."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_modules.py"
+  ],
+  "success_rate": {"backend": "100% (27/27)", "frontend": "~95% on tested flows (login no-bounce, dashboard, finance manual txn, fitness weight, nutrition add, communication AI eval, habits add, coach chat, logout, protected redirect). Plaid Link OAuth UI not tested (iframe). Fitness workout add UI list-refresh anomaly noted."},
+  "test_credentials": "demo@dopame.app / Dopame123! (admin demo). Plaid sandbox: user_good / pass_good.",
+  "seed_data_creation": "Created ephemeral TEST_* users via /api/auth/register + TEST UI-named habits/foods/workouts/txns under demo user via UI. Cleanup not performed in this iteration (data is benign and prefixed TEST).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression suite: /app/backend/tests/backend_test.py (auth/habits/goals/journal/dashboard/coach/logout) + /app/backend/tests/test_modules.py (finance/fitness/nutrition/communication/reports). 27 tests, ~13s runtime. AI calls (coach, fitness analyze, comm reply, reports) are LIVE Groq — allow 60s timeout. Plaid sandbox link-token endpoint works; the actual Plaid Link iframe popup cannot be driven by Playwright reliably and was skipped (main agent should manually verify exchange flow once if possible). Priority race-condition fix (localStorage Bearer token + axios interceptor) is confirmed working — login -> /app no longer bounces back.",
+  "rca_of_the_issue": "Priority concern from main agent (login bounce-back) is RESOLVED. AuthContext now stores token in localStorage (dopame_token); api.js axios interceptor injects Authorization: Bearer header on every request. After login the dashboard loads, GET /api/auth/me succeeds with Bearer header, user state persists across re-mounts, and ProtectedRoute keeps user on /app. Verified by waiting 3s post-login and confirming URL stays at /app and token remains in localStorage."
+}

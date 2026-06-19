@@ -34,7 +34,7 @@ export default function Profile() {
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         className="rounded-3xl border border-slate-200/60 bg-white p-6 sm:p-8"
       >
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-6">
           <div className="h-16 w-16 rounded-3xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-2xl font-semibold font-display">
             {user?.name?.[0]?.toUpperCase() || "U"}
           </div>
@@ -42,6 +42,18 @@ export default function Profile() {
             <p className="font-display text-xl font-semibold text-slate-900">{user?.name}</p>
             <p className="text-sm text-slate-400 flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {user?.email}</p>
           </div>
+        </div>
+
+        <div className="mb-8 rounded-2xl bg-slate-900 p-5 text-white">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-slate-300">Level {user?.level || 1}</span>
+            <span className="text-sm font-semibold text-orange-400">{user?.xp || 0} XP</span>
+          </div>
+          <div className="h-2 rounded-full bg-white/15 overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-orange-400 to-amber-300"
+              style={{ width: `${Math.min(100, Math.round(((user?.xp_into_level || 0) / (user?.xp_for_next || 1)) * 100))}%` }} />
+          </div>
+          <p className="mt-2 text-xs text-slate-400">{(user?.xp_for_next || 0) - (user?.xp_into_level || 0)} XP to level {(user?.level || 1) + 1}</p>
         </div>
 
         <form onSubmit={save} className="space-y-5">

@@ -186,12 +186,12 @@ class TestDashboard:
         r = demo_session.get(f"{BASE_URL}/api/dashboard", timeout=15)
         assert r.status_code == 200
         d = r.json()
-        for k in ("name", "total_habits", "completed_today", "best_streak",
-                  "avg_goal_progress", "total_goals", "journal_count",
-                  "weekly", "achievements", "earned_count"):
+        # Updated to match new unified dashboard schema (life score + module rollups)
+        for k in ("name", "level", "life_score", "finance", "weekly", "achievements"):
             assert k in d, f"missing key {k}"
         assert isinstance(d["weekly"], list) and len(d["weekly"]) == 7
         assert isinstance(d["achievements"], list) and len(d["achievements"]) >= 6
+        assert "overall" in d["life_score"] and "breakdown" in d["life_score"]
 
 
 # ---------- AI Coach (Groq live) ----------

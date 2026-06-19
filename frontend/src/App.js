@@ -7,10 +7,15 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AppShell from "./components/AppShell";
 import Dashboard from "./pages/Dashboard";
+import Finance from "./pages/Finance";
+import Fitness from "./pages/Fitness";
+import Nutrition from "./pages/Nutrition";
+import Communication from "./pages/Communication";
 import Habits from "./pages/Habits";
 import Goals from "./pages/Goals";
 import Journal from "./pages/Journal";
 import Coach from "./pages/Coach";
+import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
 
 const Loader = () => (
@@ -45,10 +50,15 @@ function App() {
             <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
             <Route path="/app" element={<Protected><AppShell /></Protected>}>
               <Route index element={<Dashboard />} />
+              <Route path="finance" element={<Finance />} />
+              <Route path="fitness" element={<Fitness />} />
+              <Route path="nutrition" element={<Nutrition />} />
+              <Route path="communication" element={<Communication />} />
               <Route path="habits" element={<Habits />} />
               <Route path="goals" element={<Goals />} />
               <Route path="journal" element={<Journal />} />
               <Route path="coach" element={<Coach />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="profile" element={<Profile />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,11 +1,28 @@
 import axios from "axios";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+export const TOKEN_KEY = "dopame_token";
 
 const api = axios.create({
   baseURL: API,
   withCredentials: true,
 });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export function setToken(token) {
+  if (token) localStorage.setItem(TOKEN_KEY, token);
+}
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
 
 export function formatApiError(detail) {
   if (detail == null) return "Something went wrong. Please try again.";
