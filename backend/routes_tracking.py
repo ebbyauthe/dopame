@@ -105,7 +105,9 @@ async def create_goal(body: GoalIn, user: dict = CurrentUser):
 @router.put("/goals/{goal_id}")
 async def update_goal(goal_id: str, body: GoalIn, user: dict = CurrentUser):
     await db.goals.update_one({"_id": ObjectId(goal_id), "user_id": user["id"]}, {"$set": body.model_dump()})
-    g = await db.goals.find_one({"_id": ObjectId(goal_id)})
+    g = await db.goals.find_one({"_id": ObjectId(goal_id), "user_id": user["id"]})
+    if not g:
+        raise HTTPException(status_code=404, detail="Goal not found")
     return goal_progress(clean(g))
 
 

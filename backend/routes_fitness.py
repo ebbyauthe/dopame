@@ -3,8 +3,13 @@ from pydantic import BaseModel
 from bson import ObjectId
 import base64, json
 from datetime import datetime, timezone, timedelta
+import logging
 from core import (db, CurrentUser, now_iso, today_str, clean, add_xp, groq_chat,
                   groq_vision, get_current_user)
+
+logger = logging.getLogger("dopame")
+
+ALLOWED_PHOTO_MIME = {"image/jpeg", "image/png", "image/webp"}
 
 router = APIRouter(prefix="/api/fitness", tags=["fitness"])
 
@@ -116,6 +121,8 @@ async def analyze(user: dict = CurrentUser):
 async def upload_photo(angle: str = Query("front"), file: UploadFile = File(...), user: dict = CurrentUser):
     data = await file.read()
     mime = file.content_type or "image/jpeg"
+    if mime not in ALLOWED_PHOTO_MIME:
+        raise HTTPException(status_code=400, detail=f"Unsupported image type '{mime}'. Use JPEG, PNG, or WebP.")
     b64 = base64.b64encode(data).decode()
     prompt = ('Analyze this fitness progress photo. Return ONLY JSON with keys: '
               '"bodyfat_estimate" (string range like "15-18%"), "muscle_development" (short phrase), '
@@ -124,7 +131,8 @@ async def upload_photo(angle: str = Query("front"), file: UploadFile = File(...)
     try:
         raw = groq_vision(prompt, b64, mime=mime, json_mode=True, max_tokens=500)
         analysis = json.loads(raw)
-    except Exception:
+    except Exception as e:
+        logger.warning("Photo analysis failed: %s", e)
         analysis = {"observations": "AI analysis unavailable right now.", "disclaimer": "Visual estimate only, not medical advice."}
     doc = {"user_id": user["id"], "angle": angle, "analysis": analysis,
            "date": today_str(), "created_at": now_iso()}

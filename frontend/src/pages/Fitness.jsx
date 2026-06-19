@@ -6,9 +6,7 @@ import {
   Dumbbell, Plus, X, Trash2, Sparkles, Scale, Activity, Trophy, Camera, Loader2,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import api, { getToken } from "../lib/api";
-
-const BACKEND = process.env.REACT_APP_BACKEND_URL;
+import api from "../lib/api";
 
 export default function Fitness() {
   const [summary, setSummary] = useState(null);
@@ -198,8 +196,8 @@ export default function Fitness() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {photos.map((p) => (
               <div key={p.id} data-testid={`photo-${p.id}`} className="group rounded-2xl border border-slate-200/60 overflow-hidden">
-                <div className="relative aspect-[3/4] bg-slate-100">
-                  <img src={`${BACKEND}/api/fitness/file?path=${encodeURIComponent(p.storage_path)}&auth=${getToken()}`} alt={p.angle} className="h-full w-full object-cover" />
+                <div className="relative aspect-[3/4] bg-slate-100 flex items-center justify-center">
+                  <Camera className="h-10 w-10 text-slate-300" />
                   <span className="absolute top-2 left-2 rounded-full bg-slate-900/70 px-2.5 py-0.5 text-xs text-white capitalize">{p.angle}</span>
                   <button onClick={() => delPhoto(p.id)} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 rounded-full bg-white/90 p-1.5 text-slate-500 hover:text-red-500 transition-all"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>

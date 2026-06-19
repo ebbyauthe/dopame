@@ -25,12 +25,15 @@ db = client[os.environ['DB_NAME']]
 # ---------- Config ----------
 JWT_ALGO = "HS256"
 JWT_SECRET = os.environ["JWT_SECRET"]
-COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "false").lower() in ("1", "true", "yes", "on")
+_on_render = bool(os.environ.get("RENDER"))
+COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "true" if _on_render else "false").lower() in ("1", "true", "yes", "on")
 COOKIE_SAMESITE = os.environ.get("COOKIE_SAMESITE", "none" if COOKIE_SECURE else "lax")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
 
+if not GROQ_API_KEY:
+    raise RuntimeError("GROQ_API_KEY environment variable is required but not set.")
 _groq = Groq(api_key=GROQ_API_KEY)
 
 # ---------- Time ----------

@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from bson import ObjectId
@@ -5,6 +6,8 @@ from datetime import datetime, timezone
 from collections import defaultdict
 import os
 from core import db, CurrentUser, now_iso, today_str, clean, add_xp
+
+logger = logging.getLogger("dopame")
 
 import plaid
 from plaid.api import plaid_api
@@ -101,7 +104,8 @@ async def _sync_user(user_id: str):
             try:
                 req = TransactionsSyncRequest(access_token=item["access_token"], cursor=cursor or "", count=200)
                 resp = get_plaid_client().transactions_sync(req)
-            except Exception:
+            except Exception as e:
+                logger.warning("Plaid sync error for item %s: %s", item.get("item_id"), e)
                 break
             for tx in resp["added"]:
                 amt = float(tx["amount"])

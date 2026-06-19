@@ -1,7 +1,10 @@
 import os
+import logging
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from core import db, hash_password, verify_password, now_iso
+
+logger = logging.getLogger("dopame")
 
 from routes_auth import router as auth_router
 from routes_tracking import router as tracking_router
@@ -28,14 +31,17 @@ def cors_origins():
     return [origin.strip().rstrip("/") for origin in origins.split(",") if origin.strip()]
 
 
-app.add_middleware(
-    CORSMiddleware,
+_cors_kwargs = dict(
     allow_origins=cors_origins(),
-    allow_origin_regex=os.environ.get("FRONTEND_ORIGIN_REGEX", r"https://.*\.onrender\.com"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+_origin_regex = os.environ.get("FRONTEND_ORIGIN_REGEX")
+if _origin_regex:
+    _cors_kwargs["allow_origin_regex"] = _origin_regex
+
+app.add_middleware(CORSMiddleware, **_cors_kwargs)
 
 
 @app.on_event("startup")
@@ -43,16 +49,19 @@ async def startup():
     await db.users.create_index("email", unique=True)
     await db.habit_logs.create_index([("habit_id", 1), ("date", 1)])
     await db.transactions.create_index("txn_id", unique=True)
-    admin_email = os.environ.get("ADMIN_EMAIL", "demo@dopame.app")
-    admin_pw = os.environ.get("ADMIN_PASSWORD", "Dopame123!")
-    existing = await db.users.find_one({"email": admin_email})
-    if not existing:
-        await db.users.insert_one({"name": "Alex Demo", "email": admin_email,
-                                   "password_hash": hash_password(admin_pw), "role": "admin",
-                                   "bio": "Building better systems, one day at a time.", "xp": 0,
-                                   "created_at": now_iso()})
-    elif not verify_password(admin_pw, existing["password_hash"]):
-        await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_pw)}})
+    admin_email = os.environ.get("ADMIN_EMAIL")
+    admin_pw = os.environ.get("ADMIN_PASSWORD")
+    if not admin_email or not admin_pw:
+        logger.warning("ADMIN_EMAIL / ADMIN_PASSWORD not set — demo account not seeded.")
+    else:
+        existing = await db.users.find_one({"email": admin_email})
+        if not existing:
+            await db.users.insert_one({"name": "Alex Demo", "email": admin_email,
+                                       "password_hash": hash_password(admin_pw), "role": "admin",
+                                       "bio": "Building better systems, one day at a time.", "xp": 0,
+                                       "created_at": now_iso()})
+        elif not verify_password(admin_pw, existing["password_hash"]):
+            await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_pw)}})
 
 
 @app.on_event("shutdown")
