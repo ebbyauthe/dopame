@@ -1,54 +1,60 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
-import { HOME } from "@/constants/testIds";
+import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import AppShell from "./components/AppShell";
+import Dashboard from "./pages/Dashboard";
+import Habits from "./pages/Habits";
+import Goals from "./pages/Goals";
+import Journal from "./pages/Journal";
+import Coach from "./pages/Coach";
+import Profile from "./pages/Profile";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const Loader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="h-10 w-10 rounded-full border-2 border-slate-200 border-t-slate-900 animate-spin" />
+  </div>
+);
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+const Protected = ({ children }) => {
+  const { user } = useAuth();
+  if (user === undefined) return <Loader />;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          data-testid={HOME.emergentLink}
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
+const PublicOnly = ({ children }) => {
+  const { user } = useAuth();
+  if (user === undefined) return <Loader />;
+  if (user) return <Navigate to="/app" replace />;
+  return children;
 };
 
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster position="top-center" richColors />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+            <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
+            <Route path="/app" element={<Protected><AppShell /></Protected>}>
+              <Route index element={<Dashboard />} />
+              <Route path="habits" element={<Habits />} />
+              <Route path="goals" element={<Goals />} />
+              <Route path="journal" element={<Journal />} />
+              <Route path="coach" element={<Coach />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </div>
   );
 }
