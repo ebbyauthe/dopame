@@ -18,12 +18,22 @@ from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
 router = APIRouter(prefix="/api/finance", tags=["finance"])
 
-_env = {"sandbox": plaid.Environment.Sandbox, "production": plaid.Environment.Production}
-_config = plaid.Configuration(
-    host=_env.get(os.environ.get("PLAID_ENV", "sandbox"), plaid.Environment.Sandbox),
-    api_key={"clientId": os.environ["PLAID_CLIENT_ID"], "secret": os.environ["PLAID_SECRET"]},
-)
-plaid_client = plaid_api.PlaidApi(plaid.ApiClient(_config))
+_plaid_client = None
+
+def get_plaid_client():
+    global _plaid_client
+    if _plaid_client is None:
+        client_id = os.environ.get("PLAID_CLIENT_ID")
+        secret = os.environ.get("PLAID_SECRET")
+        if not client_id or not secret:
+            raise HTTPException(status_code=503, detail="Plaid is not configured.")
+        _env = {"sandbox": plaid.Environment.Sandbox, "production": plaid.Environment.Production}
+        _config = plaid.Configuration(
+            host=_env.get(os.environ.get("PLAID_ENV", "sandbox"), plaid.Environment.Sandbox),
+            api_key={"clientId": client_id, "secret": secret},
+        )
+        _plaid_client = plaid_api.PlaidApi(plaid.ApiClient(_config))
+    return _plaid_client
 
 
 class ExchangeIn(BaseModel):
@@ -53,7 +63,7 @@ async def create_link_token(user: dict = CurrentUser):
         language="en",
     )
     try:
-        resp = plaid_client.link_token_create(req)
+        resp = get_plaid_client().link_token_create(req)
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Plaid error: {e}")
     return {"link_token": resp["link_token"]}
@@ -62,13 +72,13 @@ async def create_link_token(user: dict = CurrentUser):
 @router.post("/plaid/exchange")
 async def exchange_public_token(body: ExchangeIn, user: dict = CurrentUser):
     try:
-        resp = plaid_client.item_public_token_exchange(ItemPublicTokenExchangeRequest(public_token=body.public_token))
+        resp = get_plaid_client().item_public_token_exchange(ItemPublicTokenExchangeRequest(public_token=body.public_token))
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Plaid error: {e}")
     access_token = resp["access_token"]; item_id = resp["item_id"]
     inst = None
     try:
-        acc = plaid_client.accounts_get(AccountsGetRequest(access_token=access_token))
+        acc = get_plaid_client().accounts_get(AccountsGetRequest(access_token=access_token))
         inst = acc.get("item", {}).get("institution_id")
     except Exception:
         pass
@@ -90,7 +100,7 @@ async def _sync_user(user_id: str):
         while has_more:
             try:
                 req = TransactionsSyncRequest(access_token=item["access_token"], cursor=cursor or "", count=200)
-                resp = plaid_client.transactions_sync(req)
+                resp = get_plaid_client().transactions_sync(req)
             except Exception:
                 break
             for tx in resp["added"]:
@@ -125,7 +135,7 @@ async def accounts(user: dict = CurrentUser):
     out = []
     for item in items:
         try:
-            resp = plaid_client.accounts_get(AccountsGetRequest(access_token=item["access_token"]))
+            resp = get_plaid_client().accounts_get(AccountsGetRequest(access_token=item["access_token"]))
         except Exception:
             continue
         for a in resp["accounts"]:
@@ -211,7 +221,7 @@ async def finance_summary(user_id: str):
     items = await db.plaid_items.find({"user_id": user_id}).to_list(50)
     for item in items:
         try:
-            resp = plaid_client.accounts_get(AccountsGetRequest(access_token=item["access_token"]))
+            resp = get_plaid_client().accounts_get(AccountsGetRequest(access_token=item["access_token"]))
             for a in resp["accounts"]:
                 st = str(a.get("type"))
                 cur = a["balances"].get("current") or 0
