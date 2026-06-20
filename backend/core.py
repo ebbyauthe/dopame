@@ -7,7 +7,6 @@ load_dotenv(ROOT_DIR / '.env')
 
 import logging
 import base64
-import requests
 from datetime import datetime, timezone, timedelta
 from fastapi import HTTPException, Request, Depends
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -84,6 +83,12 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 CurrentUser = Depends(get_current_user)
+
+def oid(s: str) -> ObjectId:
+    try:
+        return ObjectId(s)
+    except Exception:
+        raise HTTPException(status_code=422, detail="Invalid ID format")
 
 def clean(doc: dict) -> dict:
     doc = dict(doc)

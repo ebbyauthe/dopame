@@ -87,8 +87,8 @@ export default function Finance() {
     <div className="space-y-8" data-testid="finance-page">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">Your money</p>
-          <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">Finance</h1>
+          <p className="text-xs tracking-[0.2em] uppercase font-bold text-emerald-600">Your money</p>
+          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">Finance</h1>
         </div>
         <div className="flex items-center gap-2">
           {summary.connected && <button onClick={sync} data-testid="sync-btn" className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"><RefreshCw className="h-4 w-4" /> Sync</button>}

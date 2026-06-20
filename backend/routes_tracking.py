@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from bson import ObjectId
 from datetime import datetime, timezone, timedelta
-from core import db, CurrentUser, now_iso, today_str, clean, add_xp
+from core import db, CurrentUser, now_iso, today_str, clean, add_xp, oid
 
 router = APIRouter(prefix="/api", tags=["tracking"])
 
@@ -54,6 +54,9 @@ async def create_habit(body: HabitIn, user: dict = CurrentUser):
 
 @router.post("/habits/{habit_id}/toggle")
 async def toggle_habit(habit_id: str, user: dict = CurrentUser):
+    habit = await db.habits.find_one({"_id": oid(habit_id), "user_id": user["id"]})
+    if not habit:
+        raise HTTPException(status_code=404, detail="Habit not found")
     today = today_str()
     log = await db.habit_logs.find_one({"habit_id": habit_id, "user_id": user["id"], "date": today})
     if log:
@@ -67,7 +70,7 @@ async def toggle_habit(habit_id: str, user: dict = CurrentUser):
 
 @router.delete("/habits/{habit_id}")
 async def delete_habit(habit_id: str, user: dict = CurrentUser):
-    await db.habits.update_one({"_id": ObjectId(habit_id), "user_id": user["id"]}, {"$set": {"archived": True}})
+    await db.habits.update_one({"_id": oid(habit_id), "user_id": user["id"]}, {"$set": {"archived": True}})
     return {"ok": True}
 
 
@@ -104,8 +107,8 @@ async def create_goal(body: GoalIn, user: dict = CurrentUser):
 
 @router.put("/goals/{goal_id}")
 async def update_goal(goal_id: str, body: GoalIn, user: dict = CurrentUser):
-    await db.goals.update_one({"_id": ObjectId(goal_id), "user_id": user["id"]}, {"$set": body.model_dump()})
-    g = await db.goals.find_one({"_id": ObjectId(goal_id), "user_id": user["id"]})
+    await db.goals.update_one({"_id": oid(goal_id), "user_id": user["id"]}, {"$set": body.model_dump()})
+    g = await db.goals.find_one({"_id": oid(goal_id), "user_id": user["id"]})
     if not g:
         raise HTTPException(status_code=404, detail="Goal not found")
     return goal_progress(clean(g))
@@ -113,7 +116,7 @@ async def update_goal(goal_id: str, body: GoalIn, user: dict = CurrentUser):
 
 @router.post("/goals/{goal_id}/milestone/{ms_id}/toggle")
 async def toggle_milestone(goal_id: str, ms_id: str, user: dict = CurrentUser):
-    g = await db.goals.find_one({"_id": ObjectId(goal_id), "user_id": user["id"]})
+    g = await db.goals.find_one({"_id": oid(goal_id), "user_id": user["id"]})
     if not g:
         raise HTTPException(status_code=404, detail="Goal not found")
     ms = g.get("milestones", [])
@@ -128,7 +131,7 @@ async def toggle_milestone(goal_id: str, ms_id: str, user: dict = CurrentUser):
 
 @router.delete("/goals/{goal_id}")
 async def delete_goal(goal_id: str, user: dict = CurrentUser):
-    await db.goals.delete_one({"_id": ObjectId(goal_id), "user_id": user["id"]})
+    await db.goals.delete_one({"_id": oid(goal_id), "user_id": user["id"]})
     return {"ok": True}
 
 
@@ -156,5 +159,5 @@ async def create_journal(body: JournalIn, user: dict = CurrentUser):
 
 @router.delete("/journal/{entry_id}")
 async def delete_journal(entry_id: str, user: dict = CurrentUser):
-    await db.journal_entries.delete_one({"_id": ObjectId(entry_id), "user_id": user["id"]})
+    await db.journal_entries.delete_one({"_id": oid(entry_id), "user_id": user["id"]})
     return {"ok": True}

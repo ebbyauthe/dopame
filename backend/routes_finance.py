@@ -5,7 +5,7 @@ from bson import ObjectId
 from datetime import datetime, timezone
 from collections import defaultdict
 import os
-from core import db, CurrentUser, now_iso, today_str, clean, add_xp
+from core import db, CurrentUser, now_iso, today_str, clean, add_xp, oid
 
 logger = logging.getLogger("dopame")
 
@@ -169,7 +169,7 @@ async def add_transaction(body: ManualTxn, user: dict = CurrentUser):
 
 @router.delete("/transactions/{txn_id}")
 async def del_transaction(txn_id: str, user: dict = CurrentUser):
-    await db.transactions.delete_one({"_id": ObjectId(txn_id), "user_id": user["id"]})
+    await db.transactions.delete_one({"_id": oid(txn_id), "user_id": user["id"]})
     return {"ok": True}
 
 
@@ -189,7 +189,7 @@ async def add_asset(body: AssetIn, user: dict = CurrentUser):
 
 @router.delete("/assets/{asset_id}")
 async def del_asset(asset_id: str, user: dict = CurrentUser):
-    await db.assets.delete_one({"_id": ObjectId(asset_id), "user_id": user["id"]})
+    await db.assets.delete_one({"_id": oid(asset_id), "user_id": user["id"]})
     return {"ok": True}
 
 

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from bson import ObjectId
 import json
 from datetime import datetime, timezone, timedelta
-from core import db, CurrentUser, now_iso, today_str, clean, add_xp, groq_chat
+from core import db, CurrentUser, now_iso, today_str, clean, add_xp, groq_chat, oid
 
 router = APIRouter(prefix="/api/comm", tags=["communication"])
 
@@ -47,7 +47,7 @@ async def sessions(user: dict = CurrentUser):
 
 @router.get("/session/{sid}")
 async def get_session(sid: str, user: dict = CurrentUser):
-    s = await db.comm_sessions.find_one({"_id": ObjectId(sid), "user_id": user["id"]})
+    s = await db.comm_sessions.find_one({"_id": oid(sid), "user_id": user["id"]})
     if not s:
         raise HTTPException(status_code=404, detail="Session not found")
     return clean(s)
@@ -71,7 +71,7 @@ async def start_session(body: StartIn, user: dict = CurrentUser):
 
 @router.post("/session/{sid}/reply")
 async def reply(sid: str, body: ReplyIn, user: dict = CurrentUser):
-    s = await db.comm_sessions.find_one({"_id": ObjectId(sid), "user_id": user["id"]})
+    s = await db.comm_sessions.find_one({"_id": oid(sid), "user_id": user["id"]})
     if not s:
         raise HTTPException(status_code=404, detail="Session not found")
     mode = MODE_MAP.get(s["mode"], {"name": "conversation"})
@@ -107,7 +107,7 @@ async def reply(sid: str, body: ReplyIn, user: dict = CurrentUser):
 
 @router.delete("/session/{sid}")
 async def del_session(sid: str, user: dict = CurrentUser):
-    await db.comm_sessions.delete_one({"_id": ObjectId(sid), "user_id": user["id"]})
+    await db.comm_sessions.delete_one({"_id": oid(sid), "user_id": user["id"]})
     return {"ok": True}
 
 

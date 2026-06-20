@@ -97,7 +97,7 @@ export default function Communication() {
   // Hub view
   return (
     <div className="space-y-8" data-testid="communication-page">
-      <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">Speak with confidence</p><h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">Communication</h1></div>
+      <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-violet-500">Speak with confidence</p><h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">Communication</h1></div>
 
       <div className="rounded-3xl border border-slate-200/60 bg-slate-900 text-white p-6 sm:p-8 relative overflow-hidden">
         <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl" />

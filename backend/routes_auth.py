@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, HTTPException
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from bson import ObjectId
 from core import (db, hash_password, verify_password, create_access_token, set_auth_cookie,
                   CurrentUser, now_iso, level_from_xp)
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 class RegisterIn(BaseModel):
     name: str
     email: EmailStr
-    password: str
+    password: str = Field(min_length=8)
 
 class LoginIn(BaseModel):
     email: EmailStr

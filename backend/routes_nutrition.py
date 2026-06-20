@@ -2,9 +2,12 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from pydantic import BaseModel
 from bson import ObjectId
 import base64, json
-from core import db, CurrentUser, now_iso, today_str, clean, add_xp, groq_vision
+from core import db, CurrentUser, now_iso, today_str, clean, add_xp, groq_vision, oid
 
 router = APIRouter(prefix="/api/nutrition", tags=["nutrition"])
+
+ALLOWED_PHOTO_MIME = {"image/jpeg", "image/png", "image/webp"}
+MAX_PHOTO_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 class FoodIn(BaseModel):
@@ -43,14 +46,18 @@ async def add_food(body: FoodIn, user: dict = CurrentUser):
 
 @router.delete("/log/{fid}")
 async def del_food(fid: str, user: dict = CurrentUser):
-    await db.food_logs.delete_one({"_id": ObjectId(fid), "user_id": user["id"]})
+    await db.food_logs.delete_one({"_id": oid(fid), "user_id": user["id"]})
     return {"ok": True}
 
 
 @router.post("/analyze-photo")
 async def analyze_photo(file: UploadFile = File(...), user: dict = CurrentUser):
-    data = await file.read()
+    data = await file.read(MAX_PHOTO_BYTES + 1)
+    if len(data) > MAX_PHOTO_BYTES:
+        raise HTTPException(status_code=413, detail="Image too large. Maximum size is 10 MB.")
     mime = file.content_type or "image/jpeg"
+    if mime not in ALLOWED_PHOTO_MIME:
+        raise HTTPException(status_code=400, detail=f"Unsupported image type '{mime}'. Use JPEG, PNG, or WebP.")
     b64 = base64.b64encode(data).decode()
     prompt = ('Analyze this meal photo. Estimate nutrition. Return ONLY JSON with keys: '
               '"name" (short dish name), "calories" (number), "protein" (grams number), '

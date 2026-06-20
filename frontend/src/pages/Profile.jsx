@@ -26,8 +26,8 @@ export default function Profile() {
   return (
     <div className="max-w-2xl space-y-8" data-testid="profile-page">
       <div>
-        <p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">Your identity</p>
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">Profile</h1>
+        <p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-500">Your identity</p>
+        <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">Profile</h1>
       </div>
 
       <motion.div

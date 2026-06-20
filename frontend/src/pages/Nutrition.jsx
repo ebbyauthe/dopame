@@ -73,7 +73,7 @@ export default function Nutrition() {
   return (
     <div className="space-y-8" data-testid="nutrition-page">
       <div className="flex items-center justify-between">
-        <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">Fuel your body</p><h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">Nutrition</h1></div>
+        <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-lime-600">Fuel your body</p><h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">Nutrition</h1></div>
         <button data-testid="goal-btn" onClick={() => setShowGoal(true)} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"><Target className="h-4 w-4" /> Goals</button>
       </div>
 

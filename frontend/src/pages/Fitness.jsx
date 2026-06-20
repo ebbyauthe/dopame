@@ -66,7 +66,7 @@ export default function Fitness() {
   return (
     <div className="space-y-8" data-testid="fitness-page">
       <div className="flex items-center justify-between">
-        <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">Train hard</p><h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">Fitness</h1></div>
+        <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-blue-500">Train hard</p><h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">Fitness</h1></div>
         <button data-testid="add-workout-btn" onClick={() => setShowW(true)} className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800 transition-all active:scale-95"><Plus className="h-4 w-4" /> Log workout</button>
       </div>
 

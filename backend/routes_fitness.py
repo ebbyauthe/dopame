@@ -5,11 +5,12 @@ import base64, json
 from datetime import datetime, timezone, timedelta
 import logging
 from core import (db, CurrentUser, now_iso, today_str, clean, add_xp, groq_chat,
-                  groq_vision, get_current_user)
+                  groq_vision, get_current_user, oid)
 
 logger = logging.getLogger("dopame")
 
 ALLOWED_PHOTO_MIME = {"image/jpeg", "image/png", "image/webp"}
+MAX_PHOTO_BYTES = 10 * 1024 * 1024  # 10 MB
 
 router = APIRouter(prefix="/api/fitness", tags=["fitness"])
 
@@ -52,7 +53,7 @@ async def add_workout(body: WorkoutIn, user: dict = CurrentUser):
 
 @router.delete("/workouts/{wid}")
 async def del_workout(wid: str, user: dict = CurrentUser):
-    await db.workouts.delete_one({"_id": ObjectId(wid), "user_id": user["id"]})
+    await db.workouts.delete_one({"_id": oid(wid), "user_id": user["id"]})
     return {"ok": True}
 
 
@@ -119,7 +120,9 @@ async def analyze(user: dict = CurrentUser):
 # ---------- Progress Photos (Groq vision) ----------
 @router.post("/photos")
 async def upload_photo(angle: str = Query("front"), file: UploadFile = File(...), user: dict = CurrentUser):
-    data = await file.read()
+    data = await file.read(MAX_PHOTO_BYTES + 1)
+    if len(data) > MAX_PHOTO_BYTES:
+        raise HTTPException(status_code=413, detail="Image too large. Maximum size is 10 MB.")
     mime = file.content_type or "image/jpeg"
     if mime not in ALLOWED_PHOTO_MIME:
         raise HTTPException(status_code=400, detail=f"Unsupported image type '{mime}'. Use JPEG, PNG, or WebP.")
@@ -149,5 +152,5 @@ async def list_photos(user: dict = CurrentUser):
 
 @router.delete("/photos/{pid}")
 async def del_photo(pid: str, user: dict = CurrentUser):
-    await db.progress_photos.delete_one({"_id": ObjectId(pid), "user_id": user["id"]})
+    await db.progress_photos.delete_one({"_id": oid(pid), "user_id": user["id"]})
     return {"ok": True}

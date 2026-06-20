@@ -41,7 +41,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
           <p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">{greeting}</p>
-          <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">
+          <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">
             {d.name?.split(" ")[0]} 👋
           </h1>
         </div>

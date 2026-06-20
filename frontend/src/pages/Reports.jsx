@@ -19,7 +19,7 @@ export default function Reports() {
 
   return (
     <div className="space-y-8" data-testid="reports-page">
-      <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">Reflect & review</p><h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">Reports</h1></div>
+      <div><p className="text-xs tracking-[0.2em] uppercase font-bold text-amber-500">Reflect & review</p><h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">Reports</h1></div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <button data-testid="weekly-report-btn" onClick={() => generate("weekly")} disabled={loading}

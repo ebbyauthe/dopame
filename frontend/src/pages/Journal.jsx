@@ -49,8 +49,8 @@ export default function Journal() {
   return (
     <div className="space-y-8" data-testid="journal-page">
       <div>
-        <p className="text-xs tracking-[0.2em] uppercase font-bold text-slate-400">Reflect & reset</p>
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mt-1">Journal</h1>
+        <p className="text-xs tracking-[0.2em] uppercase font-bold text-emerald-500">Reflect & reset</p>
+        <h1 className="font-display text-3xl sm:text-4xl font-medium tracking-tight text-slate-900 mt-1">Journal</h1>
       </div>
 
       <form onSubmit={save} className="rounded-3xl border border-slate-200/60 bg-white p-6 sm:p-8">
