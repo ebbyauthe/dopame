@@ -4,6 +4,10 @@ Use these settings when the frontend and backend are separate Render services.
 
 ## Frontend service
 
+**Render settings:**
+- **Build Command:** `cd frontend && npm install && npm run build`
+- **Publish Directory:** `frontend/build`
+
 Set this environment variable before building:
 
 ```text
@@ -11,6 +15,8 @@ REACT_APP_BACKEND_URL=https://your-backend-service.onrender.com
 ```
 
 Render bakes `REACT_APP_*` variables into the React build, so after changing it you must redeploy/rebuild the frontend.
+
+The `frontend/public/_redirects` file (`/* /index.html 200`) is included in the build automatically and enables SPA routing — all paths serve `index.html` so React Router handles navigation. Without this, refreshing on any `/app/*` route returns "Not Found".
 
 ## Backend service
 
