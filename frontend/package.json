@@ -82,6 +82,9 @@
       "last 1 safari version"
     ]
   },
+  "overrides": {
+    "browserslist": "4.23.3"
+  },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "7.21.11",
     "@craco/craco": "7.1.0",
