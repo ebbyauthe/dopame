@@ -33,7 +33,6 @@ const Protected = ({ children }) => {
 
 const PublicOnly = ({ children }) => {
   const { user } = useAuth();
-  if (user === undefined) return <Loader />;
   if (user) return <Navigate to="/app" replace />;
   return children;
 };
