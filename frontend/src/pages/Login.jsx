@@ -51,7 +51,11 @@ export default function Login() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-sm"
         >
-          <div className="lg:hidden mb-8"><Logo size={26} /></div>
+          <div className="flex items-center justify-between lg:hidden mb-8">
+            <Logo size={26} />
+            <Link to="/" className="text-sm text-slate-400 hover:text-slate-600 transition-colors">← Home</Link>
+          </div>
+          <Link to="/" className="hidden lg:inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-600 transition-colors mb-8">← Home</Link>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900">Sign in</h1>
           <p className="mt-2 text-sm text-slate-500">Welcome back. Let's keep the streak alive.</p>
 
