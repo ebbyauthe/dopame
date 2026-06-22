@@ -6,6 +6,7 @@ const API = backendUrl ? `${backendUrl}/api` : "/api";
 const api = axios.create({
   baseURL: API,
   withCredentials: true,
+  timeout: 12000,
 });
 
 export function formatApiError(detail) {
